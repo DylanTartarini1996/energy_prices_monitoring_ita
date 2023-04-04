@@ -10,14 +10,10 @@ st.set_page_config(
 
 st.markdown(
     """
-    I dati mostrati in questa pagina rappresentano l'
-    **andamento dei prezzi dei carburanti** dal 2005 alla data corrente 
-    e sono una rielaborazione di quelli forniti dal 
-    [Ministero dell'Ambiente e della Sicurezza Energetica](https://dgsaie.mise.gov.it/open-data).  
-    
-    Tali dati sono rilasciati in formato aperto e possono essere 
-    riutilizzati liberamente secondo i termini della licenza IODL 2.0.
-    
+        I dati mostrati in questa pagina rappresentano l'
+        **andamento dei prezzi dei carburanti** dal 2005 alla data corrente 
+        e sono una rielaborazione di quelli forniti dal 
+        [Ministero dell'Ambiente e della Sicurezza Energetica](https://dgsaie.mise.gov.it/open-data).
     """
 )
 
