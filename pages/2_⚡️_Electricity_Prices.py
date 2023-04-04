@@ -18,9 +18,10 @@ st.markdown(
         dell’energia elettrica per ogni ora e per ogni giorno. 
         Il dato nazionale è un importo che viene calcolato sulla media di diversi 
         fattori, e che tiene conto delle quantità e dei prezzi formati nelle diverse
-        zone d’Italia e nelle diverse ore della giornata.  
+        zone d’Italia e nelle diverse ore della giornata.   
 
-        Il dato proposto nell'app è un'aggregazione dei prezzi orari sulle settimane.
+        Il dato proposto nell'app è un'aggregazione dei prezzi orari sulle settimane. 
+        La fonte del dato è il [Gestore dei Mercati Elettrici](https://www.mercatoelettrico.org/it/)
     """
 )
 
