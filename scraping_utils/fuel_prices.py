@@ -4,7 +4,7 @@ import requests
 class FuelPrices():
 
     def __init__(self):
-        # net of VAT average fuel prices in Italy
+        # net of VAT average fuel prices in Italy 
         self.url = "https://dgsaie.mise.gov.it/open_data_export.php?export-id=1&amp;export-type=csv"
         
     def get_data(self) -> pd.DataFrame:
@@ -21,6 +21,7 @@ class FuelPrices():
         fuel_prices = pd.read_csv('fuel_prices.csv', index_col=0)
         fuel_prices = fuel_prices.iloc[:, 0:3]
         fuel_prices = fuel_prices.rename(columns={'GASOLIO_AUTO':'DIESEL'})
+        # 1€ per liter
         fuel_prices = fuel_prices.div(1000)
         self.df = fuel_prices
         return self.df
@@ -31,5 +32,4 @@ class FuelPrices():
         fuel_prices['DATA'] = fuel_prices.index
         df_melted = fuel_prices.melt(id_vars='DATA', var_name='series')
         return df_melted
-
-
+    
