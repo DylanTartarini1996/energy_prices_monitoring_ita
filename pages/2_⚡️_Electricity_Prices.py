@@ -1,4 +1,5 @@
 import altair as alt
+import pandas as pd
 import streamlit as st
 
 from scraping_utils.elec_prices import ElectricityPrices
@@ -24,9 +25,14 @@ st.markdown(
         La fonte del dato è il [Gestore dei Mercati Elettrici](https://www.mercatoelettrico.org/it/)
     """
 )
-
 ep = ElectricityPrices()
-pun_prices = ep.get_data()
+
+@st.cache_data
+def get_electricity_prices() -> pd.DataFrame:
+    pun_prices = ep.get_data()
+    return pun_prices
+
+pun_prices = get_electricity_prices()
 
 with st.expander(label='Electricity Prices Data'):
     st.dataframe(data=pun_prices, use_container_width=True)

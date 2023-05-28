@@ -1,4 +1,5 @@
 import altair as alt
+import pandas as pd 
 import streamlit as st
 
 from scraping_utils.fuel_prices import FuelPrices
@@ -18,7 +19,13 @@ st.markdown(
 )
 
 fp = FuelPrices()
-fuel_prices =fp.get_data()
+
+@st.cache_data
+def get_fuel_prices() -> pd.DataFrame:
+    fuel_prices=fp.get_data()
+    return fuel_prices
+
+fuel_prices = get_fuel_prices()
 
 with st.expander(label='Fuel Prices Data'):
     st.dataframe(data=fuel_prices, use_container_width=True)
