@@ -59,10 +59,3 @@ class ElectricityPrices:
         df = df["PUN"]
         df = pd.DataFrame(df.resample("W").mean())
         return df
-
-    def melt_for_altair(self) -> pd.DataFrame:
-        df = self.df
-        # Melt the DataFrame to long format
-        df["DateTime"] = df.index
-        df_melted = df.melt(id_vars="DateTime", var_name="series")
-        return df_melted

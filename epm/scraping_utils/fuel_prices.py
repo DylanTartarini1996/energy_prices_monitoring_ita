@@ -36,10 +36,3 @@ class FuelPrices:
         fuel_prices = fuel_prices.div(1000)
         self.df = fuel_prices
         return self.df
-
-    def melt_for_altair(self) -> pd.DataFrame:
-        fuel_prices = self.df
-        # Melt the DataFrame to long format
-        fuel_prices["DATA"] = fuel_prices.index
-        df_melted = fuel_prices.melt(id_vars="DATA", var_name="series")
-        return df_melted

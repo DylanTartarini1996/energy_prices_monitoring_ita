@@ -1,8 +1,8 @@
-import altair as alt
 import pandas as pd
+import plotly.express as px
 import streamlit as st
 
-from scraping_utils.elec_prices import ElectricityPrices
+from epm.scraping_utils.elec_prices import ElectricityPrices
 
 st.set_page_config(
     page_title="Prezzo Unico Nazionale",
@@ -34,22 +34,9 @@ def get_electricity_prices() -> pd.DataFrame:
 
 pun_prices = get_electricity_prices()
 
-with st.expander(label='Electricity Prices Data'):
+with st.expander(label='Prezzo Unico Nazionale'):
     st.dataframe(data=pun_prices, use_container_width=True)
 
 with st.container():
-    chart = alt.Chart(ep.melt_for_altair()).mark_line().encode(
-        x='DateTime:T',
-        y='value:Q',
-        color='series:N'
-        )
-    chart = chart.configure_axis(
-        labelFontSize=14,
-        titleFontSize=16
-        )
-    chart = chart.encode(
-        x=alt.X('DateTime:T', title='Date'),
-        y=alt.Y('value:Q', title='PUN (€/MWh)')
-        )
-
-    st.altair_chart(chart, use_container_width=True)
+    fig = px.line(data_frame=pun_prices, y="PUN")
+    st.plotly_chart(fig)

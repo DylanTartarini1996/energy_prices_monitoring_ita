@@ -2,7 +2,8 @@
 *.csv
 /notebooks/*.csv
 
-# 
+# mlruns
+/notebooks/mlruns/
 /mlruns/*
 
 # Byte-compiled / optimized / DLL files

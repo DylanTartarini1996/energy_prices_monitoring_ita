@@ -2,7 +2,10 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 
-from scraping_utils.gas_prices import GasPrices
+from epm.models.preprocess import preprocess
+from epm.models.train_model import train_model
+
+from epm.scraping_utils.gas_prices import GasPrices
 
 st.set_page_config(
     page_title="Prezzo del Gas Naturale",
@@ -26,8 +29,26 @@ def get_gas_prices() -> pd.DataFrame:
     gp = GasPrices.get_data()
     return gp
 
+
 gas_prices = get_gas_prices()
 
-fig = px.line(gas_prices, y="GAS NATURALE")
+with st.expander(label="Gas Naturale (TTF)"):
+    st.dataframe(data=gas_prices, use_container_width=True)
 
-st.plotly_chart(fig)
+with st.container():
+    fig = px.line(gas_prices, y="GAS NATURALE")
+    st.plotly_chart(fig)
+
+
+experiment_name = "gas_model"
+frac = 0.2
+
+train_data, test_data = preprocess(
+    data=gas_prices, experiment_name=experiment_name, frac=frac
+)
+
+model = train_model(
+    experiment_name=experiment_name,
+    train_data=train_data,
+    test_data=test_data
+    )
