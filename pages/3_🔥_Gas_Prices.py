@@ -47,8 +47,8 @@ train_data, test_data = preprocess(
     data=gas_prices, experiment_name=experiment_name, frac=frac
 )
 
-model = train_model(
-    experiment_name=experiment_name,
-    train_data=train_data,
-    test_data=test_data
-    )
+# model = train_model(
+#     experiment_name=experiment_name,
+#     train_data=train_data,
+#     test_data=test_data
+#     )
