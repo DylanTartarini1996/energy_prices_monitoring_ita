@@ -1,12 +1,11 @@
 # Energy Prices Monitoring ITA  
 
 ### To-do list (Last Update 04/04/2023)
-- [x] include Gas Prices
-- [x] use plotly for graphs 
 - [ ] forecasting algo for EE
 - [ ] forecasting algo for Fuel(s)
 - [ ] forecasting algo for Gas
 - [ ] requirements file
+- [ ] how to host models?
 
 ## Project Description
 Streamlit Application built for monitoring energy prices in Italy across time.  
