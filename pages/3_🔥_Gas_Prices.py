@@ -22,7 +22,6 @@ st.markdown(
     """
 )
 
-
 @st.cache_data()
 def get_gas_prices() -> pd.DataFrame:
     gp = GasPrices.get_data()
@@ -35,6 +34,14 @@ def forecaster_init() -> XGBForecaster:
     return forecaster
 forecaster = forecaster_init()
 
+with st.sidebar:
+    frac = st.slider(
+        label="Percentuale dello storico da utilizzare per l'addestramento del modello",
+        min_value=0.01,
+        max_value=1.0,
+        value=0.2
+        )
+    train = st.button(label="Addestra il modello!", type="primary")
 
 with st.expander(label="Gas Naturale (TTF)"):
     st.dataframe(data=gas_prices, use_container_width=True)
@@ -43,19 +50,23 @@ with st.container():
     fig = px.line(gas_prices, y="GAS NATURALE")
     st.plotly_chart(fig)
 
+if train:
 
-experiment_name = "gas_model"
-frac = 0.2
+    experiment_name = "gas_model"
 
-train_data, test_data = forecaster.preprocess(
-    data=gas_prices,
-    col="GAS NATURALE",
-    experiment_name=experiment_name,
-    frac=frac
-)
+    with st.spinner("Addestramento del modello in corso.."):
+        train_data, test_data = forecaster.preprocess(
+            data=gas_prices,
+            col="GAS NATURALE",
+            experiment_name=experiment_name,
+            frac=frac
+        )
 
-model = forecaster.train_model(
-     experiment_name=experiment_name,
-     train_data=train_data,
-     test_data=test_data
-)
+        model = forecaster.train_model(
+            experiment_name=experiment_name,
+            train_data=train_data,
+            test_data=test_data
+        )
+    st.success('Fatto! Il modello è addestrato e pronto ad effettuare le sue predizioni!')
+else: 
+    st.write("Puoi addestrare un algoritmo su questi dati cliccando sul bottone a sinistra!")
