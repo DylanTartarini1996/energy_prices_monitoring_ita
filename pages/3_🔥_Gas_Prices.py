@@ -2,8 +2,7 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 
-from epm.models.preprocess import preprocess
-from epm.models.train_model import train_model
+from epm.models.xgbforecaster import XGBForecaster
 
 from epm.scraping_utils.gas_prices import GasPrices
 
@@ -28,9 +27,14 @@ st.markdown(
 def get_gas_prices() -> pd.DataFrame:
     gp = GasPrices.get_data()
     return gp
-
-
 gas_prices = get_gas_prices()
+
+@st.cache_resource()
+def forecaster_init() -> XGBForecaster:
+    forecaster = XGBForecaster()
+    return forecaster
+forecaster = forecaster_init()
+
 
 with st.expander(label="Gas Naturale (TTF)"):
     st.dataframe(data=gas_prices, use_container_width=True)
@@ -43,12 +47,15 @@ with st.container():
 experiment_name = "gas_model"
 frac = 0.2
 
-train_data, test_data = preprocess(
-    data=gas_prices, experiment_name=experiment_name, frac=frac
+train_data, test_data = forecaster.preprocess(
+    data=gas_prices,
+    col="GAS NATURALE",
+    experiment_name=experiment_name,
+    frac=frac
 )
 
-# model = train_model(
-#     experiment_name=experiment_name,
-#     train_data=train_data,
-#     test_data=test_data
-#     )
+model = forecaster.train_model(
+     experiment_name=experiment_name,
+     train_data=train_data,
+     test_data=test_data
+)
