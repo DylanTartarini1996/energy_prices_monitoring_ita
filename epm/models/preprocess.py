@@ -3,10 +3,16 @@ import sys
 import mlflow
 import pandas as pd
 
-from utils.preprocessing import Preprocessing
+from typing import Tuple
 
+from epm.models.utils.preprocessing import Preprocessing
 
-def preprocess(data: pd.DataFrame, experiment_name: str, frac: float):
+def preprocess(
+        data: pd.DataFrame, 
+        col: str, 
+        experiment_name: str,
+        frac: float
+    ) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
     Creates an experiment run for the model to be trained and preprocess the data
 
@@ -14,6 +20,8 @@ def preprocess(data: pd.DataFrame, experiment_name: str, frac: float):
     ----------
     data: pd.DataFrame
         data to use for training.
+    col: str
+        column to be kept in the data
     experiment_name: str
         name of the experiment for training the model; might refer to the commodity to forecast.
     frac: float
@@ -28,7 +36,7 @@ def preprocess(data: pd.DataFrame, experiment_name: str, frac: float):
 
     with mlflow.start_run(experiment_id=experiment.experiment_id):
         # logging information on input data
-        data = Preprocessing.preprocessing(data)
+        data = Preprocessing.preprocessing(data, col)
 
         train, test = Preprocessing.train_test_split_df(
             data=data, n_test=round(len(data) * frac)

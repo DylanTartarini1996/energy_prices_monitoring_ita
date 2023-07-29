@@ -7,7 +7,7 @@ from mlflow.tracking import MlflowClient
 from xgboost import XGBRegressor
 from sklearn.metrics import mean_absolute_percentage_error, mean_absolute_error
 
-from utils.xgbforecaster import XGBForecaster
+from epm.models.xgbforecaster import XGBForecaster
 
 
 def train_model(
