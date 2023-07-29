@@ -1,0 +1,6 @@
+mlflow==2.3.0
+numpy
+pandas
+sklearn
+streamlit==1.19.0
+xgboost==1.7.3
