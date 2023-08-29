@@ -1,18 +1,14 @@
 import pandas as pd
 import plotly.express as px
-import plotly.graph_objects as go
 import streamlit as st
 
+from epm.models.xgbforecaster import XGBForecaster
 
-from prophet.plot import plot_plotly, plot_components_plotly
-
-
-from epm.models.prophet.forecaster import Forecaster
 from epm.scraping_utils.gas_prices import GasPrices
 
 st.set_page_config(
     page_title="Prezzo del Gas Naturale",
-    page_icon="🔥",
+    page_icon="📈🔥",
 )
 
 st.markdown(
@@ -30,136 +26,47 @@ st.markdown(
 def get_gas_prices() -> pd.DataFrame:
     gp = GasPrices.get_data()
     return gp
-
 gas_prices = get_gas_prices()
 
 @st.cache_resource()
-def model_training() -> Forecaster:
-    """
-    Returns the fitted forecaster
-    """
-    forecaster = Forecaster()
-    forecaster.train_model(
-        experiment_name=experiment_name,
-        train_df=gas_prices,
-        target_col=target_col,
-        artifact_path=artifact_path
-    )
+def forecaster_init() -> XGBForecaster:
+    forecaster = XGBForecaster()
     return forecaster
-
-experiment_name = "gas_model" # set the model training experiment name for mlflow
-target_col = "GAS NATURALE"
-artifact_path = "gas_prices_model"
-
-if 'train' not in st.session_state:
-    st.session_state.train = False
-
-def click_train():
-    st.session_state.train = True
-
-if "predict" not in st.session_state:
-    st.session_state.predict = False
-
-def click_predict():
-    st.session_state.predict = True 
-
-st.session_state["model_trained"] = False
+forecaster = forecaster_init()
 
 with st.sidebar:
-    st.button(label="Addestra il modello!", on_click=click_train)
+    frac = st.slider(
+        label="Percentuale dello storico da utilizzare per l'addestramento del modello",
+        min_value=0.01,
+        max_value=1.0,
+        value=0.2
+        )
+    train = st.button(label="Addestra il modello!", type="primary")
 
-with st.expander(label="Dati Gas Naturale (TTF)"):
+with st.expander(label="Gas Naturale (TTF)"):
     st.dataframe(data=gas_prices, use_container_width=True)
 
-if "predictions" not in st.session_state:
-    with st.container():
-        fig = px.line(
-            gas_prices, 
-            y='GAS NATURALE', 
-            title='Andamento storico dei prezzi del Gas Naturale',
-            labels={
-                "GAS NATURALE": "Prezzi TTF (€/smc)",
-                "index": "Data"
-            }
+with st.container():
+    fig = px.line(gas_prices, y="GAS NATURALE")
+    st.plotly_chart(fig)
+
+if train:
+
+    experiment_name = "gas_model"
+
+    with st.spinner("Addestramento del modello in corso.."):
+        train_data, test_data = forecaster.preprocess(
+            data=gas_prices,
+            col="GAS NATURALE",
+            experiment_name=experiment_name,
+            frac=frac
         )
-        st.plotly_chart(fig)
 
-else:
-    with st.container():
-        if not st.session_state["keep_in_sample_forecast"]:
-            st.caption("Predizione andamento futuro del prezzo del Gas Naturale")
-            fig = plot_plotly(
-                m=st.session_state["forecaster"].model,
-                fcst=st.session_state.predictions.tail(st.session_state["n_steps"]),
-                xlabel="Data",
-                ylabel="Prezzi TTF (€/smc)"
-            )
-            st.plotly_chart(fig, use_container_width=True)
-        else:
-            st.caption("Storico + predizione dell'andamento del prezzo del Gas Naturale")
-            fig = plot_plotly(
-                m=st.session_state["forecaster"].model,
-                fcst=st.session_state["predictions"],
-                xlabel="Data",
-                ylabel="Prezzi TTF (€/smc)"
-            )
-            st.plotly_chart(fig, use_container_width=True)
-
-if st.session_state["train"]:
-    with st.spinner("Addestramento modello in corso.."):
-        st.session_state["forecaster"] = model_training()
+        model = forecaster.train_model(
+            experiment_name=experiment_name,
+            train_data=train_data,
+            test_data=test_data
+        )
     st.success('Fatto! Il modello è addestrato e pronto ad effettuare le sue predizioni!')
-    st.session_state["model_trained"] = True
 else: 
-    st.info(
-        "Puoi addestrare un algoritmo predittivo su questi dati cliccando sul bottone a sinistra!"
-    )
-
-if st.session_state["model_trained"]:
-    
-    with st.expander(label="Configura i parametri per la previsione", expanded=True):
-        col1, col2 = st.columns(2)
-        # input per la previsione
-        with col1:
-            st.session_state["n_steps"] = st.number_input(
-                label="Quante previsioni vuoi far realizzare al modello?",
-                min_value=1,
-                max_value=len(st.session_state["forecaster"].train_df),
-                value=1
-            )
-        with col2:
-            st.session_state["keep_in_sample_forecast"] = st.checkbox(
-                label="Vuoi mantenere i risultati di predizione sul set di addestramento?",
-                value=True,
-                help="Se selezionato, nel grafico compariranno anche le previsioni che il modello ha effettuato sul dataset di training"
-            )
-
-    st.button(label="Effettua la predizione!", on_click=click_predict)
-    
-    if st.session_state["predict"]:
-        st.session_state["predictions"] = st.session_state["forecaster"].forecast(
-            n_steps=st.session_state["n_steps"],
-            keep_in_sample_forecast=st.session_state["keep_in_sample_forecast"]
-        )
-        if st.session_state["keep_in_sample_forecast"]:
-            preds = st.session_state["predictions"][["ds", "yhat", "yhat_lower", "yhat_upper"]]
-        else:
-            preds = st.session_state["predictions"].tail(st.session_state["n_steps"])[["ds", "yhat", "yhat_lower", "yhat_upper"]]
-        preds = preds.rename(
-            columns={
-                "ds": "data",
-                "yhat": "predizione",
-                "yhat_lower": "predizione_minima",
-                "yhat_upper": "predizione_massima"
-            }
-        )
-        st.download_button(
-            label="Clicca per scaricare il dato di forecast",
-            data=preds.to_csv(),
-            file_name="forecast_TTF.csv"
-        )
-        
-        with st.expander(label="Espandi per vedere il dato di forecast"):
-            st.dataframe(data=preds)
-
-
+    st.write("Puoi addestrare un algoritmo su questi dati cliccando sul bottone a sinistra!")

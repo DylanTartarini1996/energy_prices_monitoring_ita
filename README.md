@@ -13,9 +13,9 @@ Data for this application are downloaded from a variety of sources; they include
 * **Gas Prices** from the [TTF index](https://www.enel.it/en/supporto/faq/ttf-gas), obtained through the [Yahoo Finance API](https://pypi.org/project/yfinance/).
 
 ## Forecasting Algoryhtm(s)
-Forecasting for all utilities/fuels is done via [**Prophet** algorithm](https://facebook.github.io/prophet/):
-* the algorithm is the `Prophet` model developed by Meta;
-* model training is monitored and tracked using [**MLflow**](https://mlflow.org/);
+Forecasting for all utilities/fuels is done via [**XGBoost** algorythm](https://pypi.org/project/xgboost/):
+* the algorithm is the classical `XGBoostRegressor` adapted for the forecasting use case
+* model training is monitored and tracked using [**mlflow**](https://mlflow.org/)
 
 ## Local Usage
 To run the Streamlit App on your local environment go on your terminal:
@@ -25,7 +25,7 @@ To run the Streamlit App on your local environment go on your terminal:
 ```
 2. **run**
 ```
-    streamlit run Home.py
+    streamlit run EPM_ITA.py
 ```
 3. **experiment tracking** is done via mlflow. Once you launch an experiment (i.e. training a model) you can run 
 ```
@@ -34,11 +34,13 @@ To run the Streamlit App on your local environment go on your terminal:
 to visualize the mlflow UI and see all the experiment runs for all models, their metrics and so on.
 
 
-### To-do list (Last Update 11/08/2023)
-- [ ] configure cross-validation on the `Forecaster`
-- [ ] adapt to all pages
-- [x] use prophet as algo for prediction (for the sake of simplicity) --> fai in modo che si possa scegliere le metriche da visualizzare. Eventualmente, inserisci anche un box di info con la spiega di quelle metriche. 
+### To-do list (Last Update 29/07/2023)
+- [ ] training algo for EE
+- [ ] training algo for Fuel(s)
 - [x] training algo for Gas
-- [x] buttons for training + predictions 
-- [x] forecasting algo for Gas
-- [x] requirements file
+- [ ] buttons for training + predictions 
+- [ ] forecasting algo for EE
+- [ ] forecasting algo for Fuel(s)
+- [ ] forecasting algo for Gas
+- [ ] requirements file
+- [ ] how to host models?
