@@ -33,19 +33,6 @@ def get_gas_prices() -> pd.DataFrame:
 
 gas_prices = get_gas_prices()
 
-@st.cache_resource()
-def model_training() -> Forecaster:
-    """
-    Returns the fitted forecaster
-    """
-    forecaster = Forecaster()
-    forecaster.train_model(
-        experiment_name=experiment_name,
-        train_df=gas_prices,
-        target_col=target_col,
-        artifact_path=artifact_path
-    )
-    return forecaster
 
 experiment_name = "gas_model" # set the model training experiment name for mlflow
 target_col = "GAS NATURALE"
@@ -66,7 +53,48 @@ def click_predict():
 st.session_state["model_trained"] = False
 
 with st.sidebar:
+
+    st.session_state["horizon"] = st.slider(
+        label="Quanto avanti vuoi effettuare le predizioni?",
+        help="Influenza l'addestramento del modello, indicando il numero di predizioni (settimane) che vengono effettuate ad ogni periodo. Idealmente, l'orizzonte dovrebbe essere simile a quello che ci si aspetta per predire nel futuro con il modello adesstrato.",
+        min_value=1,
+        max_value=len(gas_prices),
+        value=4,
+        step=1
+    )   
+
+    st.session_state["period"] = st.slider(
+        label="Quanto spesso intendi utilizzare il modello?", 
+        help="Influenza l'addestramento del modello, indicando la frequenza (settimanale) con la quale vengono ri-effettuate le predizioni.",
+        min_value = 1,
+        max_value = len(gas_prices),
+        value=2,
+        step=1
+    )
+
     st.button(label="Addestra il modello!", on_click=click_train)
+
+@st.cache_resource()
+def model_training() -> Forecaster:
+    """
+    Returns the fitted forecaster
+    """
+    horizon = st.session_state["horizon"]*7
+    period = st.session_state["period"]*7
+    initial = round(len(gas_prices)*0.75) 
+
+    forecaster = Forecaster()
+
+    forecaster.train_model(
+        experiment_name=experiment_name,
+        train_df=gas_prices,
+        target_col=target_col,
+        artifact_path=artifact_path,
+        horizon=f"{horizon} days",
+        period=f"{period} days",
+        initial=f"{initial} days"
+    )
+    return forecaster
 
 with st.expander(label="Dati Gas Naturale (TTF)"):
     st.dataframe(data=gas_prices, use_container_width=True)

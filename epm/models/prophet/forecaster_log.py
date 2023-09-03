@@ -10,7 +10,7 @@ from prophet.diagnostics import cross_validation, performance_metrics
 from prophet.plot import plot_plotly, plot_components_plotly
 
 
-class Forecaster():
+class LogisticGrowthForecaster():
     def __init__(self) -> None:
         pass    
 
@@ -26,10 +26,10 @@ class Forecaster():
             horizon: str="28 days",
             period: str="14 days",
             initial: str="1680 days", 
-            artifact_path: str="prophet", 
+            artifact_path: str="prophet_logistic_growth", 
             metrics: list=["mse", "rmse", "mae", "mape", "mdape", "smape", "coverage"], 
             time_series_params: dict={
-                'changepoint_range': 0.7,
+                'changepoint_range': 0.8,
                 'changepoint_prior_scale': 0.5, 
                 'seasonality_prior_scale': 0.1, 
                 'seasonality_mode': 'multiplicative'
@@ -78,10 +78,13 @@ class Forecaster():
             else: 
                 self.train_df = self.train_df.rename(columns={date_col:"ds", target_col:"y"})
 
+            self.train_df["cap"] = 10000
+            self.train_df["floor"] = 0
             mlflow.set_experiment(experiment_name=experiment_name)
             with mlflow.start_run():
                 
                 model = Prophet(
+                    growth="logistic",
                     changepoint_range=time_series_params["changepoint_range"],
                     changepoint_prior_scale=time_series_params["changepoint_prior_scale"],
                     seasonality_prior_scale=time_series_params["seasonality_prior_scale"],
@@ -95,6 +98,7 @@ class Forecaster():
                     horizon=horizon,
                     period=period,
                     initial=initial,
+                    parallel="processes",
                     disable_tqdm=True,
                 )
                 cv_metrics = performance_metrics(metrics_raw)
@@ -108,6 +112,8 @@ class Forecaster():
                     periods=10,
                     freq=pd.infer_freq(self.train_df["ds"])
                 )
+                future["cap"] = 10000
+                future["floor"] = 0
                 predictions = model.predict(future)
                 signature = infer_signature(train, predictions)
 
@@ -153,6 +159,8 @@ class Forecaster():
                 freq=pd.infer_freq(self.train_df["ds"]),
                 include_history=True
             )
+            future["cap"] = 10000
+            future["floor"] = 0
             predictions = self.model.predict(future)
 
         else: # use the model logged into mlflow
@@ -163,6 +171,8 @@ class Forecaster():
                 freq=pd.infer_freq(self.train_df["ds"]),
                 include_history=True
             )
+            future["cap"] = 10000
+            future["floor"] = 0
             predictions = loaded_model.predict(future)
 
         if not keep_in_sample_forecast:
