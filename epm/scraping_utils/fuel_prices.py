@@ -21,14 +21,14 @@ class FuelPrices:
         if response.status_code == 200:
             # Save the response content to a file
             with open(
-                "../energy_prices_monitoring_ita/data/fuel_prices.csv", "wb"
+                "fuel_prices.csv", "wb"
             ) as f:
                 f.write(response.content)
             print("CSV file downloaded successfully.")
         else:
             print("Failed to download CSV file.")
         fuel_prices = pd.read_csv(
-            "../energy_prices_monitoring_ita/data/fuel_prices.csv", index_col=0
+            "fuel_prices.csv", index_col=0
         )
         fuel_prices = fuel_prices.iloc[:, 0:3]
         fuel_prices = fuel_prices.rename(columns={"GASOLIO_AUTO": "DIESEL"})

@@ -31,7 +31,7 @@ class ElectricityPrices:
 
     def get_hist_data(self):
         hist_df = pd.read_csv(
-            "../energy_prices_monitoring_ita/data/hist_pun.csv",
+            "data/hist_pun.csv",
             index_col=0,
             parse_dates=True,
         )
