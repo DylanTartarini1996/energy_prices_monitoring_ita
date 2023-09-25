@@ -33,7 +33,6 @@ def get_gas_prices() -> pd.DataFrame:
 
 gas_prices = get_gas_prices()
 
-
 experiment_name = "gas_model" # set the model training experiment name for mlflow
 target_col = "GAS NATURALE"
 artifact_path = "gas_prices_model"
