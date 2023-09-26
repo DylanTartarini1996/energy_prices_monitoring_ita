@@ -26,7 +26,11 @@ class ElectricityPrices:
         else:
             pun_prices = pd.concat([hist_df, new_data], axis=0)
 
+        pun_prices.index = pd.to_datetime(pun_prices.index)
+        pun_prices.index = pun_prices.index.date
+
         self.df = pun_prices
+        
         return self.df
 
     def get_hist_data(self):
