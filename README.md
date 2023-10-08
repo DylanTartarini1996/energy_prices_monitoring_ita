@@ -32,15 +32,3 @@ To run the Streamlit App on your local environment go on your terminal:
     mlflow server
 ```
 to visualize the mlflow UI and see all the experiment runs for all models, their metrics and so on.
-
-
-### To-do list (Last Update 11/08/2023)
-- [x] configure cross-validation on the `Forecaster`
-- [x] configure the selection of parameters on the app
-- [ ] selection of the "normal" `Forecaster` vs `LogisticGrowthForecaster` for all pages
-- [ ] adapt to all pages
-- [x] use prophet as algo for prediction (for the sake of simplicity) --> fai in modo che si possa scegliere le metriche da visualizzare. Eventualmente, inserisci anche un box di info con la spiega di quelle metriche. 
-- [x] training algo for Gas
-- [x] buttons for training + predictions 
-- [x] forecasting algo for Gas
-- [x] requirements file
